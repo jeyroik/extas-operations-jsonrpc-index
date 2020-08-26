@@ -105,14 +105,24 @@ class Index extends OperationRunner implements IIndex
         }
 
         foreach ($items as $index => $item) {
-            if (!$item->has(...$select)) {
-                unset($items[$index]);
-                continue;
-            }
-            $items[$index] = $item->__select($select);
+            $this->selectItemFields($item, $index, $select, $items);
         }
 
         return $items;
+    }
+
+    /**
+     * @param IItem $item
+     * @param int $index
+     * @param array $select
+     * @param array $items
+     */
+    protected function selectItemFields(IItem $item, int $index, array $select, array &$items): void
+    {
+        if (!$item->has(...$select)) {
+            unset($items[$index]);
+        }
+        $items[$index] = $item->__select($select);
     }
 
     /**
