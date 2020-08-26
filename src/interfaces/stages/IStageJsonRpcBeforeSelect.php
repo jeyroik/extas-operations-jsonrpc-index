@@ -3,6 +3,7 @@ namespace extas\interfaces\stages;
 
 use extas\interfaces\http\IHasJsonRpcRequest;
 use extas\interfaces\http\IHasJsonRpcResponse;
+use extas\interfaces\IItem;
 
 /**
  * Interface IStageJsonRpcBeforeSelect
@@ -16,7 +17,8 @@ interface IStageJsonRpcBeforeSelect extends IHasJsonRpcRequest, IHasJsonRpcRespo
 
     /**
      * @param array $select
+     * @param IItem[] $items
      * @return array
      */
-    public function __invoke(array $select): array;
+    public function __invoke(array $select, array $items): array;
 }

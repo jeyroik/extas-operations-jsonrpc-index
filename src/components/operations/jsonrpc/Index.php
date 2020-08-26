@@ -2,16 +2,11 @@
 namespace extas\components\operations\jsonrpc;
 
 use extas\components\conditions\ConditionParameter;
-use extas\components\expands\Box;
 use extas\components\expands\Expand;
-use extas\components\expands\Expander;
 use extas\components\api\jsonrpc\operations\OperationRunner;
-use extas\components\expands\ExpandingBox;
 use extas\interfaces\extensions\IExtensionJsonRpcIndex;
 use extas\interfaces\IItem;
 use extas\interfaces\jsonrpc\IRequest;
-use extas\interfaces\operations\IJsonRpcOperation;
-use extas\interfaces\operations\IOperation;
 use extas\interfaces\operations\jsonrpc\IIndex;
 use extas\interfaces\stages\IStageJsonRpcBeforeSelect;
 
@@ -38,6 +33,7 @@ class Index extends OperationRunner implements IIndex
             $request->getOffset(0),
             $this->convertIntoTableSort($request->getSort([]))
         );
+
         $items = $this->filter($request->getFilter(), $records);
         $items = $this->selectFields($items);
         $items = $this->expandItems($items);
@@ -101,28 +97,27 @@ class Index extends OperationRunner implements IIndex
             /**
              * @var IStageJsonRpcBeforeSelect $plugin
              */
-            $select = $plugin($select);
+            $select = $plugin($select, $items);
         }
 
+        $valid = [];
         foreach ($items as $index => $item) {
-            $this->selectItemFields($item, $index, $select, $items);
+            $this->selectItemFields($item, $select, $valid);
         }
 
-        return $items;
+        return $valid;
     }
 
     /**
      * @param IItem $item
-     * @param int $index
      * @param array $select
      * @param array $items
      */
-    protected function selectItemFields(IItem $item, int $index, array $select, array &$items): void
+    protected function selectItemFields(IItem $item, array $select, array &$items): void
     {
-        if (!$item->has(...$select)) {
-            unset($items[$index]);
+        if ($item->has(...$select)) {
+            $items[] = $item->__select($select);
         }
-        $items[$index] = $item->__select($select);
     }
 
     /**

@@ -21,8 +21,10 @@ use extas\interfaces\extensions\IExtensionJsonRpcIndex;
 use extas\interfaces\http\IHasHttpIO;
 use extas\interfaces\jsonrpc\IRequest;
 use extas\interfaces\samples\parameters\ISampleParameter;
+use extas\interfaces\stages\IStageJsonRpcBeforeSelect;
 use PHPUnit\Framework\TestCase;
 use tests\jsonrpc\misc\ExpandDescription;
+use tests\jsonrpc\misc\UnpackSelect;
 
 /**
  * Class IndexTest
@@ -56,6 +58,7 @@ class IndexTest extends TestCase
             Plugin::FIELD__CLASS => PluginExpand::class,
             Plugin::FIELD__STAGE => 'extas.expand.@expand'
         ]));
+
         $this->createWithSnuffRepo('extensionRepository', new Extension([
             Extension::FIELD__CLASS => ExtensionJsonRpcIndex::class,
             Extension::FIELD__INTERFACE => IExtensionJsonRpcIndex::class,
@@ -94,15 +97,9 @@ class IndexTest extends TestCase
 
     public function testIndexOperation()
     {
-        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
-            'name' => 'test',
-            'value' => 'is ok'
-        ]));
-        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
-            'name' => 'test_2',
-            'value' => 'is ok again'
-        ]));
+        $this->createSnuffItems();
         $this->createSnuffPlugin(ExpandDescription::class, ['extas.expand.snuff.item.description']);
+        $this->createSnuffPlugin(UnpackSelect::class, [IStageJsonRpcBeforeSelect::NAME]);
 
         $operation = new Index([
             Index::FIELD__OPERATION => new JsonRpcOperation([
@@ -151,5 +148,89 @@ class IndexTest extends TestCase
             $result,
             'Incorrect result: ' . print_r($result, true)
         );
+    }
+
+    public function testEmptySelectAndFilter()
+    {
+        $this->createSnuffItems();
+        $this->createSnuffPlugin(ExpandDescription::class, ['extas.expand.snuff.item.description']);
+
+        $operation = new Index([
+            Index::FIELD__OPERATION => new JsonRpcOperation([
+                JsonRpcOperation::FIELD__PARAMETERS => [
+                    JsonRpcOperation::PARAM__ITEM_REPOSITORY => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_REPOSITORY,
+                        ISampleParameter::FIELD__VALUE => 'snuffRepo'
+                    ],
+                    JsonRpcOperation::PARAM__ITEM_CLASS => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_CLASS,
+                        ISampleParameter::FIELD__VALUE => SnuffItem::class
+                    ],
+                    JsonRpcOperation::PARAM__ITEM_NAME => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_NAME,
+                        ISampleParameter::FIELD__VALUE => 'snuff.item'
+                    ],
+                    JsonRpcOperation::PARAM__METHOD => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__METHOD,
+                        ISampleParameter::FIELD__VALUE => 'index'
+                    ]
+                ]
+            ])
+        ]);
+
+        $result = $operation([
+            IHasHttpIO::FIELD__PSR_REQUEST => $this->getPsrRequest('.empty'),
+            IHasHttpIO::FIELD__PSR_RESPONSE => $this->getPsrResponse(),
+            IHasHttpIO::FIELD__ARGUMENTS => [
+                'version' => 0,
+                'expand' => ['snuff.item.description']
+            ],
+        ]);
+
+        $this->assertEquals(
+            [
+                'items' => [
+                    [
+                        'name' => 'x_it?',
+                        'value' => 'is ok again',
+                        'expand' => ['snuff.item.description'],
+                        'description' => 'long long description'
+                    ],
+                    [
+                        'name' => 'test_3',
+                        'expand' => ['snuff.item.description'],
+                        'description' => 'long long description'
+                    ],
+                    [
+                        'name' => 'test_2',
+                        'value' => 'is ok again',
+                        'expand' => ['snuff.item.description'],
+                        'description' => 'long long description'
+                    ]
+                ],
+                'total' => 3
+            ],
+            $result,
+            'Incorrect result: ' . print_r($result, true)
+        );
+    }
+
+    protected function createSnuffItems()
+    {
+        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
+            'name' => 'test',
+            'value' => 'is ok'
+        ]));
+        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
+            'name' => 'test_2',
+            'value' => 'is ok again'
+        ]));
+        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
+            'name' => 'test_3'
+        ]));
+        $this->getMagicClass('snuffRepo')->create(new SnuffItem([
+            'name' => 'x_it?',
+            'value' => 'is ok again'
+        ]));
     }
 }
