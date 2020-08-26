@@ -168,11 +168,11 @@ class Index extends OperationRunner implements IIndex
     }
 
     /**
-     * @param array $item
+     * @param IItem $item
      * @param array $conditions
      * @param array $result
      */
-    protected function filterByConditions(array $item, array $conditions, array &$result): void
+    protected function filterByConditions(IItem $item, array $conditions, array &$result): void
     {
         $valid = true;
         foreach ($conditions as $condition) {

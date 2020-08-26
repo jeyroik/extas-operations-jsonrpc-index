@@ -11,6 +11,11 @@
       "name",
       "value"
     ],
-    "expand": ["snuff.item.description"]
+    "expand": ["snuff.item.description"],
+    "filter": {
+      "name": {
+        "~": "test"
+      }
+    }
   }
 }

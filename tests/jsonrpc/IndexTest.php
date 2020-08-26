@@ -2,6 +2,8 @@
 namespace tests\jsonrpc;
 
 use Dotenv\Dotenv;
+use extas\components\conditions\Condition;
+use extas\components\conditions\TSnuffConditions;
 use extas\components\expands\Box;
 use extas\components\extensions\Extension;
 use extas\components\extensions\ExtensionJsonRpcIndex;
@@ -34,6 +36,7 @@ class IndexTest extends TestCase
     use TSnuffRepositoryDynamic;
     use THasMagicClass;
     use TSnuffPlugins;
+    use TSnuffConditions;
 
     protected function setUp(): void
     {
@@ -42,7 +45,8 @@ class IndexTest extends TestCase
         $env->load();
         $this->createSnuffDynamicRepositories([
             ['snuffRepo', 'name', SnuffItem::class],
-            ['expandBoxes', 'name', Box::class]
+            ['expandBoxes', 'name', Box::class],
+            ['conditions', 'name', Condition::class],
         ]);
         $this->getMagicClass('expandBoxes')->create(new Box([
             Box::FIELD__NAME => 'snuff.item.description',
@@ -60,6 +64,7 @@ class IndexTest extends TestCase
                 'getLimit', 'getOffset', 'getSort', 'getSelect'
             ]
         ]));
+        $this->createSnuffCondition('like');
     }
 
     protected function tearDown(): void

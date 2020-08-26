@@ -52,7 +52,12 @@ Index operation for JSON RPC.
     "offset": 0,
     "sort": {"name": -1},
     "select": ["name", "value"],
-    "expand": ["snuff.item.description"]
+    "expand": ["snuff.item.description"],
+    "filter": {
+      "name": {
+        "~": "test"
+      }
+    }
   }
 }
 ```
