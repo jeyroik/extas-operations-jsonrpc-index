@@ -185,6 +185,6 @@ class Index extends OperationRunner implements IIndex
      */
     protected function getSubjectForExtension(): string
     {
-        return static::SUBJECT;
+        return 'extas.operation.jsonrpc.index';
     }
 }

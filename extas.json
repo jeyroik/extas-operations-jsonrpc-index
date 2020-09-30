@@ -1,0 +1,13 @@
+{
+  "name": "extas/operations-jsonrpc-index",
+  "extensions": [
+    {
+      "class": "extas\\components\\extensions\\ExtensionJsonRpcIndex",
+      "interface": "extas\\interfaces\\extensions\\IExtensionJsonRpcIndex",
+      "subject": "extas.jsonrpc.request",
+      "methods": [
+        "getLimit", "getOffset", "getSelect", "getSort"
+      ]
+    }
+  ]
+}

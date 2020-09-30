@@ -1,3 +1,7 @@
+# 0.1.1
+
+- Extension description added to the `extas.json`.
+
 # 0.1.0
 
 - Базовый функционал, включая:
