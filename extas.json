@@ -7,7 +7,8 @@
       "subject": "extas.jsonrpc.request",
       "methods": [
         "getLimit", "getOffset", "getSelect", "getSort"
-      ]
+      ],
+      "install_on": "install"
     }
   ]
 }

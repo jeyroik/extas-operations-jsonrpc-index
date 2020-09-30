@@ -27,11 +27,12 @@ class Index extends OperationRunner implements IIndex
          * @var IExtensionJsonRpcIndex|IRequest $request
          */
         $request = $this->getJsonRpcRequest();
-        $records = $this->getOperation()->getItemRepository()->all(
+        $repository = $this->getOperation()->getItemRepository();
+        $records = $repository->all(
             [],
             $request->getLimit(0),
             $request->getOffset(0),
-            $this->convertIntoTableSort($request->getSort([]))
+            $this->convertIntoTableSort($request->getSort([$repository->getPk()]))
         );
 
         $items = $this->filter($request->getFilter(), $records);
