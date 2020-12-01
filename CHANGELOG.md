@@ -1,6 +1,11 @@
+# 0.2.0
+
+- Появилась стадия `extas.json.rpc.before.index.response`, которая позволяет получить доступ к элементам до помещения их в результат.
+  - Также добавлена именная стадия `extas.json.rpc.before.index.response.<operation.name>`.
+
 # 0.1.1
 
-- Extension description added to the `extas.json`.
+- Добавлены описания расширений в `extas.json`.
 
 # 0.1.0
 
