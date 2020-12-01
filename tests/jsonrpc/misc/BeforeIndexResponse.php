@@ -1,6 +1,8 @@
 <?php
 namespace tests\jsonrpc\misc;
 
+use extas\components\http\THasJsonRpcRequest;
+use extas\components\http\THasJsonRpcResponse;
 use extas\components\plugins\Plugin;
 use extas\interfaces\IItem;
 use extas\interfaces\stages\IStageJsonRpcBeforeIndexResponse;
@@ -13,6 +15,9 @@ use extas\interfaces\stages\IStageJsonRpcBeforeIndexResponse;
  */
 class BeforeIndexResponse extends Plugin implements IStageJsonRpcBeforeIndexResponse
 {
+    use THasJsonRpcResponse;
+    use THasJsonRpcRequest;
+
     /**
      * @param IItem[] $items
      * @return array
