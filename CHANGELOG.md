@@ -1,3 +1,7 @@
+# 0.2.1
+
+- Стадия `extas.json.rpc.before.index.response` (и её именованная версия) теперь наследуют `IHasJsonRpcRequest` и `IhasJsonRpcResponse`.
+
 # 0.2.0
 
 - Появилась стадия `extas.json.rpc.before.index.response`, которая позволяет получить доступ к элементам до помещения их в результат.

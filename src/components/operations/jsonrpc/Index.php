@@ -60,7 +60,7 @@ class Index extends OperationRunner implements IIndex
     protected function runStageBeforeIndexResponse(array $items): array
     {
         $stage = IStageJsonRpcBeforeIndexResponse::NAME;
-        foreach ($this->getPluginsByStage($stage) as $plugin) {
+        foreach ($this->getPluginsByStage($stage, $this->getHttpIO()) as $plugin) {
             /**
              * @var IStageJsonRpcBeforeIndexResponse $plugin
              */
@@ -68,7 +68,7 @@ class Index extends OperationRunner implements IIndex
         }
 
         $stage .= '.' . $this->getOperation()->getName();
-        foreach ($this->getPluginsByStage($stage) as $plugin) {
+        foreach ($this->getPluginsByStage($stage, $this->getHttpIO()) as $plugin) {
             /**
              * @var IStageJsonRpcBeforeIndexResponse $plugin
              */

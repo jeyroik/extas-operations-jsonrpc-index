@@ -2,6 +2,8 @@
 namespace extas\interfaces\stages;
 
 use extas\interfaces\IItem;
+use extas\interfaces\http\IHasJsonRpcRequest;
+use extas\interfaces\http\IHasJsonRpcResponse;
 
 /**
  * Interface IStageJsonRpcAfterIndex
@@ -9,7 +11,7 @@ use extas\interfaces\IItem;
  * @package extas\interfaces\stages
  * @author jeyroik <jeyroik@gmail.com>
  */
-interface IStageJsonRpcBeforeIndexResponse
+interface IStageJsonRpcBeforeIndexResponse extends IHasJsonRpcRequest, IHasJsonRpcResponse
 {
     public const NAME = 'extas.json.rpc.before.index.response';
 
