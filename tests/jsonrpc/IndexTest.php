@@ -21,8 +21,11 @@ use extas\interfaces\extensions\IExtensionJsonRpcIndex;
 use extas\interfaces\http\IHasHttpIO;
 use extas\interfaces\jsonrpc\IRequest;
 use extas\interfaces\samples\parameters\ISampleParameter;
+use extas\interfaces\stages\IStageJsonRpcBeforeIndexResponse;
 use extas\interfaces\stages\IStageJsonRpcBeforeSelect;
 use PHPUnit\Framework\TestCase;
+use tests\jsonrpc\misc\BeforeIndexResponse;
+use tests\jsonrpc\misc\BeforeIndexResponseCustom;
 use tests\jsonrpc\misc\ExpandDescription;
 use tests\jsonrpc\misc\UnpackSelect;
 
@@ -138,6 +141,66 @@ class IndexTest extends TestCase
                 'items' => [
                     [
                         'name' => 'test_2',
+                        'value' => 'is ok again',
+                        'expand' => ['snuff.item.description'],
+                        'description' => 'long long description'
+                    ]
+                ],
+                'total' => 1
+            ],
+            $result,
+            'Incorrect result: ' . print_r($result, true)
+        );
+    }
+
+    public function testBeforeIndexResponsePlugins()
+    {
+        $this->createSnuffItems();
+        $this->createSnuffPlugin(ExpandDescription::class, ['extas.expand.snuff.item.description']);
+        $this->createSnuffPlugin(UnpackSelect::class, [IStageJsonRpcBeforeSelect::NAME]);
+        $this->createSnuffPlugin(BeforeIndexResponse::class, [IStageJsonRpcBeforeIndexResponse::NAME]);
+        $this->createSnuffPlugin(BeforeIndexResponseCustom::class, [IStageJsonRpcBeforeIndexResponse::NAME . '.test']);
+
+        $operation = new Index([
+            Index::FIELD__OPERATION => new JsonRpcOperation([
+                JsonRpcOperation::FIELD__NAME => 'test',
+                JsonRpcOperation::FIELD__PARAMETERS => [
+                    JsonRpcOperation::PARAM__ITEM_REPOSITORY => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_REPOSITORY,
+                        ISampleParameter::FIELD__VALUE => 'snuffRepo'
+                    ],
+                    JsonRpcOperation::PARAM__ITEM_CLASS => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_CLASS,
+                        ISampleParameter::FIELD__VALUE => SnuffItem::class
+                    ],
+                    JsonRpcOperation::PARAM__ITEM_NAME => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__ITEM_NAME,
+                        ISampleParameter::FIELD__VALUE => 'snuff.item'
+                    ],
+                    JsonRpcOperation::PARAM__METHOD => [
+                        ISampleParameter::FIELD__NAME => JsonRpcOperation::PARAM__METHOD,
+                        ISampleParameter::FIELD__VALUE => 'index'
+                    ]
+                ]
+            ])
+        ]);
+
+        $result = $operation([
+            IHasHttpIO::FIELD__PSR_REQUEST => $this->getPsrRequest(),
+            IHasHttpIO::FIELD__PSR_RESPONSE => $this->getPsrResponse(),
+            IHasHttpIO::FIELD__ARGUMENTS => [
+                'version' => 0,
+                'expand' => ['snuff.item.description']
+            ],
+        ]);
+
+        $this->assertEquals(
+            [
+                'items' => [
+                    [
+                        'name' => 'test_2',
+                        'general' => true,
+                        'custom' => true,
                         'value' => 'is ok again',
                         'expand' => ['snuff.item.description'],
                         'description' => 'long long description'

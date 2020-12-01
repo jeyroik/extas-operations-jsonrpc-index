@@ -8,6 +8,7 @@ use extas\interfaces\extensions\IExtensionJsonRpcIndex;
 use extas\interfaces\IItem;
 use extas\interfaces\jsonrpc\IRequest;
 use extas\interfaces\operations\jsonrpc\IIndex;
+use extas\interfaces\stages\IStageJsonRpcBeforeIndexResponse;
 use extas\interfaces\stages\IStageJsonRpcBeforeSelect;
 
 /**
@@ -38,6 +39,7 @@ class Index extends OperationRunner implements IIndex
         $items = $this->filter($request->getFilter(), $records);
         $items = $this->selectFields($items);
         $items = $this->expandItems($items);
+        $items = $this->runStageBeforeIndexResponse($items);
 
         $asArray = [];
 
@@ -49,6 +51,31 @@ class Index extends OperationRunner implements IIndex
             'items' => $asArray,
             'total' => count($asArray)
         ];
+    }
+
+    /**
+     * @param array $items
+     * @return array
+     */
+    protected function runStageBeforeIndexResponse(array $items): array
+    {
+        $stage = IStageJsonRpcBeforeIndexResponse::NAME;
+        foreach ($this->getPluginsByStage($stage) as $plugin) {
+            /**
+             * @var IStageJsonRpcBeforeIndexResponse $plugin
+             */
+            $items = $plugin($items);
+        }
+
+        $stage .= '.' . $this->getOperation()->getName();
+        foreach ($this->getPluginsByStage($stage) as $plugin) {
+            /**
+             * @var IStageJsonRpcBeforeIndexResponse $plugin
+             */
+            $items = $plugin($items);
+        }
+
+        return $items;
     }
 
     /**
@@ -165,7 +192,7 @@ class Index extends OperationRunner implements IIndex
 
     /**
      * @param IItem $item
-     * @param array $conditions
+     * @param ConditionParameter[] $conditions
      * @param array $result
      */
     protected function filterByConditions(IItem $item, array $conditions, array &$result): void
